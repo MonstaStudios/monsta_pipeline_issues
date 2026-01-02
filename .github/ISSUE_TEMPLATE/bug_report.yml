@@ -56,11 +56,3 @@ body:
       placeholder: 1. Go to '...'
     validations:
       required: false
-
-  - type: textarea
-    id: expected
-    attributes:
-      label: Expected behavior
-      placeholder: What did you expect to happen?
-    validations:
-      required: false
