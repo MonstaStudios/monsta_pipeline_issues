@@ -1,73 +1,40 @@
 name: Bug report
-description: Report an issue or defect for Monsta Tools or Submission
+description: Create a report to help us improve Monsta Tools or Submission. Please fill in all details as clearly as possible.
 title: "[Bug] <brief description>"
 labels: [bug]
 body:
-  - type: input
-    id: reporter_name
+  - type: textarea
+    id: context
     attributes:
-      label: Your Name
-      description: Please enter your full name.
-      placeholder: e.g. Jane Doe
+      label: Reporter Info & Context
+      description: |
+        Please fill in the following details (edit each line):
+
+        ```
+        Name: 
+        In-house or Outsource: 
+        PC Number (if any): 
+        Department (LAYOUT/ASSET/ANIMATION/RENDERING / LIGHTING/FX/COMPOSITING): 
+        Tool (Monsta Tools or Monsta Submission): 
+        Sub-tool (if relevant): 
+        Contact info (optional): 
+        ```
+      placeholder: |
+        Name: 
+        In-house or Outsource: 
+        PC Number (if any): 
+        Department: 
+        Tool: 
+        Sub-tool: 
+        Contact info: 
     validations:
       required: true
-
-  - type: dropdown
-    id: employment_type
-    attributes:
-      label: Are you outsource or in-house?
-      options:
-        - In-house
-        - Outsource
-    validations:
-      required: true
-
-  - type: input
-    id: pc_number
-    attributes:
-      label: PC Number (optional)
-      description: If reporting from a specific PC, provide its number.
-      placeholder: e.g. MON-###
-    validations:
-      required: false
-
-  - type: dropdown
-    id: department
-    attributes:
-      label: Department
-      options:
-        - LAYOUT
-        - ASSET
-        - ANIMATION
-        - RENDERING / LIGHTING
-        - FX
-        - COMPOSITING
-    validations:
-      required: true
-
-  - type: dropdown
-    id: tool
-    attributes:
-      label: Which Monsta product/tool is this about?
-      options:
-        - Monsta Tools
-        - Monsta Submission
-    validations:
-      required: true
-
-  - type: input
-    id: subtool
-    attributes:
-      label: Sub-tool (optional)
-      description: Specify the sub-tool, script, or module if relevant
-      placeholder: e.g. Assets Publisher, Shot Checker
-    validations:
-      required: false
 
   - type: input
     id: short-summary
     attributes:
       label: Short summary
+      description: Briefly summarize your bug (this will appear in the title)
       placeholder: e.g. Ingest panel throws error on upload
     validations:
       required: true
@@ -76,7 +43,8 @@ body:
     id: details
     attributes:
       label: What happened?
-      description: Please describe the bug in detail. You can drag & drop images.
+      description: Please describe the bug in detail. You can drag & drop screenshots or images here.
+      placeholder: Please describe the bug in detail.
     validations:
       required: true
 
@@ -84,14 +52,15 @@ body:
     id: steps
     attributes:
       label: Steps to reproduce
-      description: List the steps to reproduce the bug.
+      description: List the steps to reproduce this issue, including any details to help us identify the problem.
+      placeholder: 1. Go to '...'
     validations:
       required: false
 
-  - type: input
-    id: contact
+  - type: textarea
+    id: expected
     attributes:
-      label: Contact Info (optional)
-      placeholder: email@example.com
+      label: Expected behavior
+      placeholder: What did you expect to happen?
     validations:
       required: false
