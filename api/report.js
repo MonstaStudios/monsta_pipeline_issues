@@ -37,6 +37,7 @@ async function uploadFileToS3(file, filename, mimeType) {
     ContentType: mimeType,
   };
   const uploadRes = await s3.upload(params).promise();
+  imagesMarkdown += `![${uploaded.filename}](${uploadRes.Location})\n`;
   return uploadRes.Location; // This is the public URL
 }
 
@@ -96,4 +97,5 @@ _Submitted via external form_
   }
 
 };
+
 
