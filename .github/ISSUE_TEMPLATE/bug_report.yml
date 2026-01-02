@@ -7,13 +7,14 @@ body:
     id: context
     attributes:
       label: Reporter Info & Context
+      
       placeholder: |
         Name: 
         In-house or Outsource: 
-        PC Number (if any): 
-        Department: 
-        Tool: 
-        Sub-tool: 
+        PC Number (if any): MON###
+        Department: [LAYOUT, ASSET, ANIMATION, RENDERING / LIGHTING, FX, COMPOSITING]
+        Tool: [MONSTA TOOL, MONSTA SUBMISSION, KITSU, etc]
+        Sub-tool: [Asset Cleanup, Playblast option, submit feedback, etc]
         Contact info: 
     validations:
       required: true
