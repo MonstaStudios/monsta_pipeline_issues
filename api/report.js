@@ -35,7 +35,6 @@ async function uploadFileToS3(file, filename, mimeType) {
     Key: key,
     Body: file,
     ContentType: mimeType,
-    ACL: 'public-read' // allows public access to the uploaded image
   };
   const uploadRes = await s3.upload(params).promise();
   return uploadRes.Location; // This is the public URL
@@ -97,3 +96,4 @@ _Submitted via external form_
   }
 
 };
+
