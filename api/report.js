@@ -10,7 +10,7 @@ const s3 = new AWS.S3({
 
 function getFormFields(req) {
   return new Promise((resolve, reject) => {
-    const busboy = new Busboy({ headers: req.headers });
+    const busboy = Busboy({ headers: req.headers }); // NOT `new Busboy`
     const fields = {};
     const files = [];
     busboy.on('field', (key, value) => { fields[key] = value; });
@@ -95,4 +95,5 @@ _Submitted via external form_
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
+
 };
