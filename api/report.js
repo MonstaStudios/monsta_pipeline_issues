@@ -41,6 +41,8 @@ function getFormFields(req) {
         busboy.on('file', (key, file, info) => {
             // Busboy v1.x+ provides filename, encoding, mimeType in an info object
             const { filename, encoding, mimeType } = info;
+            console.log(`Received file: field="${key}", filename="${filename}", mimeType="${mimeType}"`);
+            
             let name = 'upload.bin';
             if (filename && typeof filename === 'string' && filename.length > 0) {
                 name = sanitizeFilename(filename);
@@ -48,6 +50,7 @@ function getFormFields(req) {
             let buf = [];
             file.on('data', (data) => buf.push(data));
             file.on('end', () => {
+                console.log(`File buffered: ${name}, size: ${Buffer.concat(buf).length} bytes`);
                 files.push({
                     field: key,
                     filename: name,
@@ -99,6 +102,9 @@ module.exports = async (req, res) => {
 
     try {
         const { fields, files } = await getFormFields(req);
+        
+        console.log(`Form parsed - Fields: ${Object.keys(fields).length}, Files: ${files.length}`);
+        files.forEach((f, i) => console.log(`  File ${i + 1}: ${f.filename} (${f.mimeType})`));
 
         // Tool value (custom if "Other" selected)
         const toolVal = (fields.tool === "Other" && fields.tool_custom)
