@@ -1,0 +1,67 @@
+name: Feature request
+description: Suggest a new feature for Monsta Tools or Submission
+title: "[Feature] <brief description>"
+labels: [feature]
+body:
+  - type: dropdown
+    id: department
+    attributes:
+      label: Department
+      options:
+        - LAYOUT
+        - ASSET
+        - ANIMATION
+        - RENDERING / LIGHTING
+        - FX
+        - COMPOSITING
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tool
+    attributes:
+      label: Which Monsta product/tool is this about?
+      options:
+        - Monsta Tools
+        - Monsta Submission
+    validations:
+      required: true
+
+  - type: input
+    id: subtool
+    attributes:
+      label: Sub-tool (optional)
+      placeholder: e.g. Assets Publisher, Shot Checker
+    validations:
+      required: false
+
+  - type: input
+    id: short-summary
+    attributes:
+      label: Short summary
+      placeholder: e.g. Add quick render button to Submission UI
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: What problem or need does this feature address?
+      description: Briefly explain why this would be useful.
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Describe the solution you'd like
+      description: Include anything that would help us understand your idea.
+    validations:
+      required: false
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Info (optional)
+    validations:
+      required: false
