@@ -27,7 +27,7 @@ body:
     attributes:
       label: PC Number (optional)
       description: If reporting from a specific PC, provide its number.
-      placeholder: e.g. PC-042
+      placeholder: e.g. MON-###
     validations:
       required: false
 
