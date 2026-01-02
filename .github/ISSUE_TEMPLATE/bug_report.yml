@@ -8,13 +8,26 @@ body:
     attributes:
       label: Reporter Info & Context
       
-      placeholder: |
+      description: |
+        Please fill in the following details (edit each line):
+
+        ```
         Name: 
         In-house or Outsource: 
         PC Number (if any): MON###
-        Department: [LAYOUT, ASSET, ANIMATION, RENDERING / LIGHTING, FX, COMPOSITING]
-        Tool: [MONSTA TOOL, MONSTA SUBMISSION, KITSU, etc]
-        Sub-tool: [Asset Cleanup, Playblast option, submit feedback, etc]
+        Department (LAYOUT/ASSET/ANIMATION/RENDERING / LIGHTING/FX/COMPOSITING): 
+        Tool (Monsta Tools / Monsta Submission/ Kitsu / etc): 
+        Sub-tool (if relevant): [Asset Cleanup, Playblast option, submit feedback, etc]
+        Contact info (optional): 
+        ```
+        
+      placeholder: |
+        Name: 
+        In-house or Outsource: 
+        PC Number (if any): 
+        Department: 
+        Tool: 
+        Sub-tool: 
         Contact info: 
     validations:
       required: true
