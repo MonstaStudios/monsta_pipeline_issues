@@ -107,6 +107,9 @@ module.exports = async (req, res) => {
 
         // Upload each image, assemble markdown
         let imagesMarkdown = "";
+        if (files.length > 0) {
+            console.log(`Processing ${files.length} image(s)...`);
+        }
         for (const uploaded of files) {
             const url = await uploadFileToS3(
                 uploaded.file,
