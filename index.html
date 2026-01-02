@@ -10,7 +10,7 @@
       background: #1a1a2e;
       color: #eeeeee;
       font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
-      margin: 0;
+      margin: 3px;
     }
 
     main {
@@ -94,6 +94,27 @@
       display: none;
     }
 
+    .note {
+      color: #ffd452cc;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .req {
+      color: #ff6b6b;
+      margin-left: 1px;
+      font-weight: 750;
+    }
+
+    .warning {
+      background: #ffd45211;
+      border: 1px solid #ffd45244;
+      color: #ffd452ee;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      font-size: 13px;
+    }
     @media (max-width: 600px) {
       main {
         max-width: 96vw;
@@ -126,10 +147,14 @@
 
 <body>
   <main>
-    <h1>External Issue Submission</h1>
+    <h1>Issue Submission</h1>
+
+    <p class="note">Fields marked with<span class="req"> *</span> are required.</p>
+    <div class="warning">Warning: Do not upload passwords, personal IDs, or any sensitive/confidential information. Only attach non-confidential screenshots. Files will be stored externally.</div>
+
     <form action="https://monsta-pipeline-issues.vercel.app/api/report" method="post" enctype="multipart/form-data">
-      <label>Name : <input type="text" name="name" required></label>
-      <label>In-house/Outsource :
+      <label>Name<span class="req">*</span> : <input type="text" name="name" required></label>
+      <label>In-house/Outsource<span class="req">*</span> :
         <select name="employment" required>
           <option value="">--Choose--</option>
           <option value="In-house">In-house</option>
@@ -137,7 +162,7 @@
         </select>
       </label>
       <label>PC Number : <input type="text" name="pc_number"></label>
-      <label>Department :
+      <label>Department<span class="req">*</span> :
         <select name="department" required>
           <option value="">--Choose--</option>
           <option>LAYOUT</option>
@@ -148,7 +173,7 @@
           <option>COMPOSITING</option>
         </select>
       </label>
-      <label>Tool :
+      <label>Tool<span class="req">*</span> :
         <select name="tool" id="tool-select" required>
           <option value="">--Choose--</option>
           <option>Monsta Tools</option>
@@ -160,17 +185,17 @@
         <label>Specify Tool : <input type="text" name="tool_custom" placeholder="Please enter your tool name"></label>
       </div>
       <label>Sub-tool : <input type="text" name="subtool"></label>
-      <label>Issue Type :
+      <label>Issue Type<span class="req">*</span> :
         <select name="type" required>
           <option value="Bug">Bug</option>
           <option value="Feature">Feature</option>
         </select>
       </label>
-      <label>Short summary : <input type="text" name="summary" required></label>
-      <label>Details : <textarea name="details" required></textarea></label>
+      <label>Short summary<span class="req">*</span> : <input type="text" name="summary" required></label>
+      <label>Details<span class="req">*</span> : <textarea name="details" required></textarea></label>
       <label>Steps to reproduce : <textarea name="extra"></textarea></label>
-      <label>Contact info (optional) : <input type="text" name="contact"></label>
-      <label>Screenshots : <input type="file" name="images" accept="image/*" multiple></label>
+      <label>Contact Email (optional) : <input type="email" name="contact"></label>
+      <label>Screenshots (multiple allowed) : <input type="file" name="images" accept="image/*" multiple></label>
       <button type="submit">Submit</button>
     </form>
     <div class="footer">Powered by GitHub Pages &mdash; Monsta Studios</div>
