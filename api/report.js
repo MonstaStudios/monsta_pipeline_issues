@@ -2,35 +2,36 @@ const AWS = require('aws-sdk');
 const axios = require('axios');
 const Busboy = require('busboy');
 
-// S3 client setup
+// AWS S3 Client
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_REGION
 });
 
-// Sanitize filename to avoid unsupported chars
+// Sanitize filename so it is safe for URL/S3/markdown
 function sanitizeFilename(filename) {
     if (!filename || typeof filename !== "string") return "upload.bin";
     return filename
-        .replace(/^.*[\\/]/, '')            // Remove path
-        .replace(/\s+/g, '_')               // Spaces to underscores
-        .replace(/[^a-zA-Z0-9._-]/g, '')    // Remove unsafe chars
-        .replace(/\.+/g, '.')               // Remove consecutive dots
+        .replace(/^.*[\\/]/, '')            // Remove path info
+        .replace(/\s+/g, '_')               // Spaces to underscore
+        .replace(/[^a-zA-Z0-9._-]/g, '')    // Only safe chars
+        .replace(/\.+/g, '.')               // Reduce multiple dots
         .toLowerCase();
 }
 
-// Guess Content-Type by extension
+// Guess the image Content-Type by extension (for fallback)
 function guessContentType(filename) {
-    filename = sanitizeFilename(String(filename)); // Always string and sanitized
-    if (filename.endsWith('.png')) return 'image/png';
-    if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) return 'image/jpeg';
-    if (filename.endsWith('.gif')) return 'image/gif';
-    if (filename.endsWith('.webp')) return 'image/webp';
+    filename = String(filename || '').toLowerCase();
+    if (filename.endsWith('.png'))   return 'image/png';
+    if (filename.endsWith('.jpg'))   return 'image/jpeg';
+    if (filename.endsWith('.jpeg'))  return 'image/jpeg';
+    if (filename.endsWith('.gif'))   return 'image/gif';
+    if (filename.endsWith('.webp'))  return 'image/webp';
     return 'application/octet-stream';
 }
 
-// Parse form fields and files (Busboy)
+// Parse form fields/files using Busboy
 function getFormFields(req) {
     return new Promise((resolve, reject) => {
         const busboy = Busboy({ headers: req.headers });
@@ -42,8 +43,6 @@ function getFormFields(req) {
             if (filename && typeof filename === 'string' && filename.length > 0) {
                 name = sanitizeFilename(filename);
             }
-            // DEBUG: Show filename value in Vercel logs
-            console.log("Received file:", filename, "Sanitized:", name);
             let buf = [];
             file.on('data', (data) => buf.push(data));
             file.on('end', () => {
@@ -61,29 +60,32 @@ function getFormFields(req) {
     });
 }
 
-// S3 upload: returns public URL
+// Upload file to S3 with correct Content-Type
 async function uploadFileToS3(file, filename, mimeType) {
     const bucketName = process.env.S3_BUCKET_NAME;
     const safeFilename = sanitizeFilename(filename);
     const key = `uploads/${Date.now()}-${safeFilename}`;
-    // Use Busboy's mimeType only if it's image/*
-    const contentType =
-        (mimeType && typeof mimeType === 'string' && mimeType.startsWith('image/')) ?
-            mimeType : guessContentType(safeFilename);
+    // Use mimeType only if it's an image, else guess
+    const contentType = (
+        mimeType && typeof mimeType === "string" && mimeType.startsWith("image/")
+    ) ? mimeType : guessContentType(safeFilename);
+
+    // Debug log - see what will be set in S3 metadata
+    console.log(`Uploading to S3: ${key}, Content-Type: ${contentType}`);
 
     const params = {
         Bucket: bucketName,
         Key: key,
         Body: file,
         ContentType: contentType
-        // No ACL needed: bucket-owner enforced/bucket policy handles public-read
+        // No ACL needed
     };
     const uploadRes = await s3.upload(params).promise();
     return uploadRes.Location;
 }
 
 module.exports = async (req, res) => {
-    // Uncomment for CORS if form is hosted on another domain (e.g., GitHub Pages)
+    // Optional: allow CORS if submitting from GitHub Pages
     // res.setHeader("Access-Control-Allow-Origin", "https://monstastudios.github.io");
     // res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     // if (req.method === "OPTIONS") { res.status(200).end(); return; }
@@ -96,12 +98,12 @@ module.exports = async (req, res) => {
     try {
         const { fields, files } = await getFormFields(req);
 
-        // Determine tool value
+        // Tool value (custom if "Other" selected)
         const toolVal = (fields.tool === "Other" && fields.tool_custom)
             ? fields.tool_custom
             : fields.tool;
 
-        // Upload images and build markdown links
+        // Upload each image, assemble markdown
         let imagesMarkdown = "";
         for (const uploaded of files) {
             const url = await uploadFileToS3(
@@ -112,7 +114,7 @@ module.exports = async (req, res) => {
             imagesMarkdown += `![${uploaded.filename}](${url})\n`;
         }
 
-        // Markdown for GitHub issue
+        // Build GitHub issue body (markdown)
         const bodyMd = `
 **Name:** ${fields.name}
 **In-house/Outsource:** ${fields.employment}
@@ -127,7 +129,7 @@ ${imagesMarkdown ? `\n**Images:**\n${imagesMarkdown}` : ""}
 _Submitted via external form_
 `.trim();
 
-        // Labels for issue
+        // Labels for the issue (no empty/undefined values)
         const labels = [
             fields.type ? fields.type.toLowerCase() : "",
             toolVal || "",
@@ -135,7 +137,7 @@ _Submitted via external form_
             "external-report"
         ].filter(Boolean);
 
-        // Create issue on GitHub via REST API
+        // Create GitHub issue
         const ghResp = await axios.post(
             `https://api.github.com/repos/${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}/issues`,
             {
@@ -154,7 +156,7 @@ _Submitted via external form_
         res.setHeader('Content-Type', 'application/json');
         res.status(200).json({ success: true, issueUrl: ghResp.data.html_url });
     } catch (err) {
-        // For debugging in Vercel logs
+        // Debug log for error
         console.error(err);
         res.status(500).json({
             success: false,
