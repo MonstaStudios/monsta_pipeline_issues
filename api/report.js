@@ -14,7 +14,7 @@ function sanitizeFilename(filename) {
     if (!filename || typeof filename !== "string") return "upload.bin";
     return filename
         .replace(/^.*[\\/]/, '')            // Remove path info
-        .replace(/\s+/g, '_')               // Spaces to underscores
+        .replace(/\s+/g, '_')               // Spaces to underscore
         .replace(/[^a-zA-Z0-9._-]/g, '')    // Only safe chars
         .replace(/\.+/g, '.')               // Reduce multiple dots
         .toLowerCase();
@@ -31,29 +31,20 @@ function guessContentType(filename) {
     return 'application/octet-stream';
 }
 
-// Fallback filename using mimeType (for files without a name)
-function defaultFilename(mimeType) {
-    if (mimeType && typeof mimeType === 'string' && mimeType.startsWith('image/')) {
-        return 'upload.' + mimeType.split('/')[1]; // e.g. upload.png
-    }
-    return 'upload.bin';
-}
-
-// Parse form fields/files using Busboy (updated robust file handler)
+// Parse form fields/files using Busboy
 function getFormFields(req) {
     return new Promise((resolve, reject) => {
         const busboy = Busboy({ headers: req.headers });
         const fields = {};
         const files = [];
         busboy.on('field', (key, value) => { fields[key] = value; });
-        busboy.on('file', (key, file, filename, encoding, mimeType) => {
-            let name;
+        busboy.on('file', (key, file, info) => {
+            // Busboy v1.x+ provides filename, encoding, mimeType in an info object
+            const { filename, encoding, mimeType } = info;
+            let name = 'upload.bin';
             if (filename && typeof filename === 'string' && filename.length > 0) {
                 name = sanitizeFilename(filename);
-            } else {
-                name = defaultFilename(mimeType);
             }
-            console.log("Busboy file event:", { key, filename, encoding, mimeType, name }); // Debug log
             let buf = [];
             file.on('data', (data) => buf.push(data));
             file.on('end', () => {
