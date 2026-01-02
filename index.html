@@ -115,6 +115,80 @@
       margin-bottom: 18px;
       font-size: 13px;
     }
+
+    .file-upload-container {
+      margin-bottom: 18px;
+    }
+
+    .file-list {
+      background: #2a2a40;
+      border-radius: 6px;
+      padding: 8px;
+      margin-top: 8px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      background: #313153;
+      border-radius: 4px;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .file-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .file-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-right: 8px;
+    }
+
+    .file-remove {
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 2px 8px;
+      cursor: pointer;
+      font-size: 12px;
+      width: auto;
+      margin: 0;
+    }
+
+    .file-remove:hover {
+      background: #ff5252;
+    }
+
+    .file-count {
+      color: #ffd452;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .add-more-btn {
+      background: #2a2a40;
+      color: #ffd452;
+      border: 1px solid #ffd452;
+      width: auto;
+      padding: 8px 16px;
+      margin-top: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .add-more-btn:hover {
+      background: #313153;
+    }
+
     @media (max-width: 600px) {
       main {
         max-width: 96vw;
@@ -139,8 +213,54 @@
         customToolInput.querySelector('input').required = false;
       }
     }
+
+    // File upload management
+    var selectedFiles = [];
+
+    function updateFileList() {
+      var fileList = document.getElementById('file-list');
+      var fileCount = document.getElementById('file-count');
+      
+      if (selectedFiles.length === 0) {
+        fileList.innerHTML = '<div style="color: #888; font-size: 13px; padding: 8px;">No files selected</div>';
+        fileCount.textContent = '';
+      } else {
+        fileList.innerHTML = '';
+        selectedFiles.forEach(function(file, index) {
+          var fileItem = document.createElement('div');
+          fileItem.className = 'file-item';
+          fileItem.innerHTML = '<span class="file-name">' + file.name + '</span><button type="button" class="file-remove" onclick="removeFile(' + index + ')">Remove</button>';
+          fileList.appendChild(fileItem);
+        });
+        fileCount.textContent = selectedFiles.length + ' file(s) selected';
+      }
+
+      // Update hidden file input
+      var dataTransfer = new DataTransfer();
+      selectedFiles.forEach(function(file) {
+        dataTransfer.items.add(file);
+      });
+      document.getElementById('hidden-file-input').files = dataTransfer.files;
+    }
+
+    function removeFile(index) {
+      selectedFiles.splice(index, 1);
+      updateFileList();
+    }
+
+    function handleFileSelect(input) {
+      if (input.files && input.files.length > 0) {
+        for (var i = 0; i < input.files.length; i++) {
+          selectedFiles.push(input.files[i]);
+        }
+        updateFileList();
+      }
+      input.value = ''; // Clear input to allow re-selecting same file
+    }
+
     window.addEventListener('DOMContentLoaded', function () {
       document.getElementById('tool-select').addEventListener('change', handleToolChange);
+      updateFileList();
     });
   </script>
 </head>
@@ -195,7 +315,18 @@
       <label>Details<span class="req">*</span> : <textarea name="details" required></textarea></label>
       <label>Steps to reproduce : <textarea name="extra"></textarea></label>
       <label>Contact Email (optional) : <input type="email" name="contact"></label>
-      <label>Screenshots (multiple allowed) : <input type="file" name="images" accept="image/*" multiple></label>
+      
+      <div class="file-upload-container">
+        <label>Screenshots (multiple allowed) :</label>
+        <button type="button" class="add-more-btn" onclick="document.getElementById('temp-file-input').click()">
+          📎 Attach Image(s)
+        </button>
+        <input type="file" id="temp-file-input" accept="image/*" multiple style="display: none;" onchange="handleFileSelect(this)">
+        <input type="file" id="hidden-file-input" name="images" style="display: none;">
+        <div class="file-count" id="file-count"></div>
+        <div class="file-list" id="file-list"></div>
+      </div>
+
       <button type="submit">Submit</button>
     </form>
     <div class="footer">Powered by GitHub Pages &mdash; Monsta Studios</div>
