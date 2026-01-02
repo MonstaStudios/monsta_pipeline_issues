@@ -7,18 +7,6 @@ body:
     id: context
     attributes:
       label: Reporter Info & Context
-      description: |
-        Please fill in the following details (edit each line):
-
-        ```
-        Name: 
-        In-house or Outsource: 
-        PC Number (if any): 
-        Department (LAYOUT/ASSET/ANIMATION/RENDERING / LIGHTING/FX/COMPOSITING): 
-        Tool (Monsta Tools or Monsta Submission): 
-        Sub-tool (if relevant): 
-        Contact info (optional): 
-        ```
       placeholder: |
         Name: 
         In-house or Outsource: 
