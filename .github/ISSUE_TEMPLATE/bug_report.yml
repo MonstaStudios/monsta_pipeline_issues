@@ -1,13 +1,12 @@
 name: Bug report
-description: Report a bug to help us improve Monsta Tools and Submissions.
-title: "[Bug] "
+description: Report an issue or defect for Monsta Tools or Submission
+title: "[Bug] <brief description>"
 labels: [bug]
 body:
   - type: dropdown
     id: department
     attributes:
       label: Department
-      description: Choose the department most related to this issue.
       options:
         - LAYOUT
         - ASSET
@@ -22,7 +21,6 @@ body:
     id: tool
     attributes:
       label: Which Monsta product/tool is this about?
-      description: Select the main tool related to this issue.
       options:
         - Monsta Tools
         - Monsta Submission
@@ -33,17 +31,23 @@ body:
     id: subtool
     attributes:
       label: Sub-tool (optional)
-      description: Specify the sub-tool or module if relevant (e.g. publish, ingest, etc.)
-      placeholder: (e.g., Assets Publisher, Shot Checker)
+      placeholder: e.g. Assets Publisher, Shot Checker
     validations:
       required: false
 
   - type: input
-    id: what-happened
+    id: short-summary
+    attributes:
+      label: Short summary
+      placeholder: e.g. Ingest panel throws error on upload
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
     attributes:
       label: What happened?
-      description: Describe the bug you encountered.
-      placeholder: A clear and concise description of the bug.
+      description: Please describe the bug in detail. You can drag & drop images.
     validations:
       required: true
 
@@ -51,8 +55,7 @@ body:
     id: steps
     attributes:
       label: Steps to reproduce
-      description: Please provide step-by-step instructions to reproduce the bug. You can drag and drop images here for screenshots.
-      placeholder: 1. Go to '...'
+      description: List the steps to reproduce the bug.
     validations:
       required: false
 
@@ -60,4 +63,5 @@ body:
     id: contact
     attributes:
       label: Contact Info (optional)
-      placeholder: email@example.com
+    validations:
+      required: false
