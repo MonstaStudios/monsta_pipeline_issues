@@ -3,6 +3,34 @@ description: Suggest a new feature for Monsta Tools or Submission
 title: "[Feature] <brief description>"
 labels: [feature]
 body:
+  - type: input
+    id: reporter_name
+    attributes:
+      label: Your Name
+      description: Please enter your full name.
+      placeholder: e.g. Jane Doe
+    validations:
+      required: true
+
+  - type: dropdown
+    id: employment_type
+    attributes:
+      label: Are you outsource or in-house?
+      options:
+        - In-house
+        - Outsource
+    validations:
+      required: true
+
+  - type: input
+    id: pc_number
+    attributes:
+      label: PC Number (optional)
+      description: If relevant, provide your PC number.
+      placeholder: e.g. PC-042
+    validations:
+      required: false
+
   - type: dropdown
     id: department
     attributes:
@@ -31,6 +59,7 @@ body:
     id: subtool
     attributes:
       label: Sub-tool (optional)
+      description: Specify the sub-tool, script, or module if relevant
       placeholder: e.g. Assets Publisher, Shot Checker
     validations:
       required: false
@@ -39,7 +68,7 @@ body:
     id: short-summary
     attributes:
       label: Short summary
-      placeholder: e.g. Add quick render button to Submission UI
+      placeholder: e.g. Add batch publish feature to Submission UI
     validations:
       required: true
 
@@ -55,7 +84,7 @@ body:
     id: details
     attributes:
       label: Describe the solution you'd like
-      description: Include anything that would help us understand your idea.
+      description: Include anything that would help us understand your idea. You can drag & drop images.
     validations:
       required: false
 
@@ -63,5 +92,6 @@ body:
     id: contact
     attributes:
       label: Contact Info (optional)
+      placeholder: email@example.com
     validations:
       required: false
