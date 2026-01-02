@@ -9,20 +9,20 @@ const s3 = new AWS.S3({
     region: process.env.AWS_REGION
 });
 
-// Sanitize filename to remove unwanted characters, paths, spaces, etc.
+// Sanitize filename to avoid unsupported chars
 function sanitizeFilename(filename) {
     if (!filename || typeof filename !== "string") return "upload.bin";
     return filename
-        .replace(/^.*[\\/]/, '')            // Remove directory paths
+        .replace(/^.*[\\/]/, '')            // Remove path
         .replace(/\s+/g, '_')               // Spaces to underscores
-        .replace(/[^a-zA-Z0-9._-]/g, '')    // Only safe characters
-        .replace(/\.+/g, '.')               // Reduce consecutive dots
+        .replace(/[^a-zA-Z0-9._-]/g, '')    // Remove unsafe chars
+        .replace(/\.+/g, '.')               // Remove consecutive dots
         .toLowerCase();
 }
 
-// Guess MIME type from filename (if Busboy doesn't supply image/* correctly)
+// Guess Content-Type by extension
 function guessContentType(filename) {
-    filename = sanitizeFilename(String(filename)); // Defensive: always a string
+    filename = sanitizeFilename(String(filename)); // Always string and sanitized
     if (filename.endsWith('.png')) return 'image/png';
     if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) return 'image/jpeg';
     if (filename.endsWith('.gif')) return 'image/gif';
@@ -30,7 +30,7 @@ function guessContentType(filename) {
     return 'application/octet-stream';
 }
 
-// Parse multipart form data (returns { fields, files[] })
+// Parse form fields and files (Busboy)
 function getFormFields(req) {
     return new Promise((resolve, reject) => {
         const busboy = Busboy({ headers: req.headers });
@@ -38,12 +38,18 @@ function getFormFields(req) {
         const files = [];
         busboy.on('field', (key, value) => { fields[key] = value; });
         busboy.on('file', (key, file, filename, encoding, mimeType) => {
+            let name = 'upload.bin';
+            if (filename && typeof filename === 'string' && filename.length > 0) {
+                name = sanitizeFilename(filename);
+            }
+            // DEBUG: Show filename value in Vercel logs
+            console.log("Received file:", filename, "Sanitized:", name);
             let buf = [];
             file.on('data', (data) => buf.push(data));
             file.on('end', () => {
                 files.push({
                     field: key,
-                    filename: filename ? sanitizeFilename(filename) : "upload.bin",
+                    filename: name,
                     file: Buffer.concat(buf),
                     mimeType: mimeType
                 });
@@ -55,30 +61,29 @@ function getFormFields(req) {
     });
 }
 
-// Upload file to S3 & return public URL
+// S3 upload: returns public URL
 async function uploadFileToS3(file, filename, mimeType) {
     const bucketName = process.env.S3_BUCKET_NAME;
     const safeFilename = sanitizeFilename(filename);
     const key = `uploads/${Date.now()}-${safeFilename}`;
-    // Prefer mimeType from Busboy only if it's image/*
+    // Use Busboy's mimeType only if it's image/*
     const contentType =
-        (mimeType && typeof mimeType === "string" && mimeType.startsWith("image/"))
-            ? mimeType
-            : guessContentType(safeFilename);
+        (mimeType && typeof mimeType === 'string' && mimeType.startsWith('image/')) ?
+            mimeType : guessContentType(safeFilename);
 
     const params = {
         Bucket: bucketName,
         Key: key,
         Body: file,
         ContentType: contentType
-        // No ACL needed: bucket policy handles public-read
+        // No ACL needed: bucket-owner enforced/bucket policy handles public-read
     };
     const uploadRes = await s3.upload(params).promise();
     return uploadRes.Location;
 }
 
 module.exports = async (req, res) => {
-    // Optional: allow CORS for external form POSTs (e.g., GitHub Pages)
+    // Uncomment for CORS if form is hosted on another domain (e.g., GitHub Pages)
     // res.setHeader("Access-Control-Allow-Origin", "https://monstastudios.github.io");
     // res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     // if (req.method === "OPTIONS") { res.status(200).end(); return; }
@@ -91,12 +96,12 @@ module.exports = async (req, res) => {
     try {
         const { fields, files } = await getFormFields(req);
 
-        // Set tool value from custom field if applicable
+        // Determine tool value
         const toolVal = (fields.tool === "Other" && fields.tool_custom)
             ? fields.tool_custom
             : fields.tool;
 
-        // Upload images to S3 and collect markdown URLs
+        // Upload images and build markdown links
         let imagesMarkdown = "";
         for (const uploaded of files) {
             const url = await uploadFileToS3(
@@ -107,7 +112,7 @@ module.exports = async (req, res) => {
             imagesMarkdown += `![${uploaded.filename}](${url})\n`;
         }
 
-        // Build the issue markdown body
+        // Markdown for GitHub issue
         const bodyMd = `
 **Name:** ${fields.name}
 **In-house/Outsource:** ${fields.employment}
@@ -122,7 +127,7 @@ ${imagesMarkdown ? `\n**Images:**\n${imagesMarkdown}` : ""}
 _Submitted via external form_
 `.trim();
 
-        // Gather labels for GH issue
+        // Labels for issue
         const labels = [
             fields.type ? fields.type.toLowerCase() : "",
             toolVal || "",
@@ -130,7 +135,7 @@ _Submitted via external form_
             "external-report"
         ].filter(Boolean);
 
-        // Create issue on GitHub
+        // Create issue on GitHub via REST API
         const ghResp = await axios.post(
             `https://api.github.com/repos/${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}/issues`,
             {
@@ -149,7 +154,7 @@ _Submitted via external form_
         res.setHeader('Content-Type', 'application/json');
         res.status(200).json({ success: true, issueUrl: ghResp.data.html_url });
     } catch (err) {
-        // Optional: print error to Vercel logs
+        // For debugging in Vercel logs
         console.error(err);
         res.status(500).json({
             success: false,
