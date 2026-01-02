@@ -3,10 +3,41 @@ description: Report a bug to help us improve Monsta Tools and Submissions.
 title: "[Bug] "
 labels: [bug]
 body:
-  - type: markdown
+  - type: dropdown
+    id: department
     attributes:
-      value: |
-        Thanks for helping us improve! Please fill out the fields below.
+      label: Department
+      description: Choose the department most related to this issue.
+      options:
+        - LAYOUT
+        - ASSET
+        - ANIMATION
+        - RENDERING / LIGHTING
+        - FX
+        - COMPOSITING
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tool
+    attributes:
+      label: Which Monsta product/tool is this about?
+      description: Select the main tool related to this issue.
+      options:
+        - Monsta Tools
+        - Monsta Submission
+    validations:
+      required: true
+
+  - type: input
+    id: subtool
+    attributes:
+      label: Sub-tool (optional)
+      description: Specify the sub-tool or module if relevant (e.g. publish, ingest, etc.)
+      placeholder: (e.g., Assets Publisher, Shot Checker)
+    validations:
+      required: false
+
   - type: input
     id: what-happened
     attributes:
@@ -15,24 +46,16 @@ body:
       placeholder: A clear and concise description of the bug.
     validations:
       required: true
+
   - type: textarea
     id: steps
     attributes:
       label: Steps to reproduce
       description: Please provide step-by-step instructions to reproduce the bug. You can drag and drop images here for screenshots.
-      placeholder: 1. Go to '...'  
+      placeholder: 1. Go to '...'
     validations:
       required: false
-  - type: dropdown
-    id: tool
-    attributes:
-      label: Which Monsta product/tool is this about?
-      description: Select the tool most related to the issue.
-      options:
-        - Monsta Tools
-        - Monsta Submission
-    validations:
-      required: true
+
   - type: input
     id: contact
     attributes:
