@@ -6,16 +6,17 @@ labels: enhancement
 assignees: ''
 ---
 
-**In-house or Outsource:**  
+**In-house or Outsource :**  
 (e.g. in / out)
 
-**Name:**  
+**Name :**  
 (e.g. Jane Smith)
 
-**PC No.:**  
+**PC No. :**  
 (e.g. MON ###)
 
-**Department:**  
+**Instructions:** To mark your selection, replace `[ ]` with `[x]` for the correct option.
+**Department :**  
 - [ ] LAYOUT  
 - [ ] ASSET  
 - [ ] ANIMATION  
@@ -24,13 +25,13 @@ assignees: ''
 - [ ] FX  
 - [ ] COMPOSITING  
 
-**Tools:**  
+**Tools :**  
 - [ ] Monsta Tool  
 - [ ] Monsta Submission  
 - [ ] Kitsu  
 - [ ] Other (please specify): ___________
 
-**Sub-tool (if new, suggest the name):**  
+**Sub-tool (if new, suggest the name) :**  
 (e.g. playblast / asset cleanup / feedback option)
 
 **Describe the feature / request**  
