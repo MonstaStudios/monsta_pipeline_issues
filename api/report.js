@@ -127,16 +127,16 @@ module.exports = async (req, res) => {
 
         // Build GitHub issue body (markdown)
         const bodyMd = `
-**Name:** ${fields.name}
-**In-house/Outsource:** ${fields.employment}
-**PC Number:** ${fields.pc_number}
-**Department:** ${fields.department}
-**Tool:** ${toolVal}
-${fields.subtool ? `**Sub-tool:** ${fields.subtool}` : ""}
-${fields.contact ? `**Contact:** ${fields.contact}\n` : ""}
-**Details:**\n${fields.details}
-${fields.extra ? `\n**Steps/Motivation:**\n${fields.extra}` : ""}
-${imagesMarkdown ? `\n**Images:**\n${imagesMarkdown}` : ""}
+**Name :** ${fields.name}
+**In-house/Outsource :** ${fields.employment}
+**PC Number :** ${fields.pc_number}
+**Department :** ${fields.department}
+**Tool :** ${toolVal}
+${fields.subtool ? `**Sub-tool :** ${fields.subtool}` : ""}
+${fields.contact ? `**Contact :** ${fields.contact}\n` : ""}
+**Details :**\n${fields.details}
+${fields.extra ? `\n**Steps to reproduce :**\n${fields.extra}` : ""}
+${imagesMarkdown ? `\n**Images :**\n${imagesMarkdown}` : ""}
 _Submitted via external form_
 `.trim();
 
