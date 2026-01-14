@@ -23,11 +23,11 @@ function sanitizeFilename(filename) {
 // Guess the image Content-Type by extension (for fallback)
 function guessContentType(filename) {
     filename = String(filename || '').toLowerCase();
-    if (filename.endsWith('.png'))   return 'image/png';
-    if (filename.endsWith('.jpg'))   return 'image/jpeg';
-    if (filename.endsWith('.jpeg'))  return 'image/jpeg';
-    if (filename.endsWith('.gif'))   return 'image/gif';
-    if (filename.endsWith('.webp'))  return 'image/webp';
+    if (filename.endsWith('.png')) return 'image/png';
+    if (filename.endsWith('.jpg')) return 'image/jpeg';
+    if (filename.endsWith('.jpeg')) return 'image/jpeg';
+    if (filename.endsWith('.gif')) return 'image/gif';
+    if (filename.endsWith('.webp')) return 'image/webp';
     return 'application/octet-stream';
 }
 
@@ -42,7 +42,7 @@ function getFormFields(req) {
             // Busboy v1.x+ provides filename, encoding, mimeType in an info object
             const { filename, encoding, mimeType } = info;
             console.log(`Received file: field="${key}", filename="${filename}", mimeType="${mimeType}"`);
-            
+
             let name = 'upload.bin';
             if (filename && typeof filename === 'string' && filename.length > 0) {
                 name = sanitizeFilename(filename);
@@ -102,7 +102,7 @@ module.exports = async (req, res) => {
 
     try {
         const { fields, files } = await getFormFields(req);
-        
+
         console.log(`Form parsed - Fields: ${Object.keys(fields).length}, Files: ${files.length}`);
         files.forEach((f, i) => console.log(`  File ${i + 1}: ${f.filename} (${f.mimeType})`));
 
@@ -111,32 +111,34 @@ module.exports = async (req, res) => {
             ? fields.tool_custom
             : fields.tool;
 
-        // Upload each image, assemble markdown
+        // Upload each image, assemble markdown (wrapped in collapsible section)
         let imagesMarkdown = "";
         if (files.length > 0) {
             console.log(`Processing ${files.length} image(s)...`);
-        }
-        for (const uploaded of files) {
-            const url = await uploadFileToS3(
-                uploaded.file,
-                uploaded.filename,
-                uploaded.mimeType
-            );
-            imagesMarkdown += `![${uploaded.filename}](${url})\n`;
+            imagesMarkdown = "<details>\n<summary>🔒 Images (Click to expand - Organization members only)</summary>\n\n";
+            for (const uploaded of files) {
+                const url = await uploadFileToS3(
+                    uploaded.file,
+                    uploaded.filename,
+                    uploaded.mimeType
+                );
+                imagesMarkdown += `![${uploaded.filename}](${url})\n`;
+            }
+            imagesMarkdown += "\n</details>";
         }
 
         // Build GitHub issue body (markdown)
         const bodyMd = `
-**Name :** ${fields.name}
-**In-house/Outsource :** ${fields.employment}
-**PC Number :** ${fields.pc_number}
-**Department :** ${fields.department}
-**Tool :** ${toolVal}
-${fields.subtool ? `**Sub-tool :** ${fields.subtool}` : ""}
-${fields.contact ? `**Contact :** ${fields.contact}\n` : ""}
-**Details :**\n${fields.details}
-${fields.extra ? `\n**Steps to reproduce :**\n${fields.extra}` : ""}
-${imagesMarkdown ? `\n**Images :**\n${imagesMarkdown}` : ""}
+**Name:** ${fields.name}
+**In-house/Outsource:** ${fields.employment}
+**PC Number:** ${fields.pc_number}
+**Department:** ${fields.department}
+**Tool:** ${toolVal}
+${fields.subtool ? `**Sub-tool:** ${fields.subtool}` : ""}
+${fields.contact ? `**Contact:** ${fields.contact}\n` : ""}
+**Details:**\n${fields.details}
+${fields.extra ? `\n**Steps to reproduce:**\n${fields.extra}` : ""}
+${imagesMarkdown ? `\n**Images:**\n${imagesMarkdown}` : ""}
 _Submitted via external form_
 `.trim();
 
