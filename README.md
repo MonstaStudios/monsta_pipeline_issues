@@ -9,3 +9,19 @@ We welcome bug reports both from within and outside the organization!
 - For both: Attach screenshots whenever possible and please specify which Monsta tool is affected.
 
 _External submissions are posted by our issue bot. Please include contact info for follow-up if desired._
+
+# Checklist
+
+## Refactoring Checklist
+- [ ] Archive or close resolved/irrelevant issues to keep the board clean.
+- [ ] Refactor and standardize labeling and milestone use.
+- [ ] Audit issue templates for clarity and usefulness.
+
+**Summary:** Make issue triaging and reporting more efficient and accurate.
+
+## Feature Update Checklist
+- [ ] Add automation to link pipeline status/issues from other systems (e.g., with webhooks).
+- [ ] Enhance templates, especially for bug reports and feedback, to capture critical info.
+- [ ] Improve project documentation for new contributors tracking issues.
+
+**Summary:** Make this repo a reliable, up-to-date, and user-friendly source of pipeline health and feedback.
