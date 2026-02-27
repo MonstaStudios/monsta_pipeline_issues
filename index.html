@@ -272,7 +272,7 @@
     <p class="note">Fields marked with<span class="req"> *</span> are required.</p>
     <div class="warning">Warning: Do not upload passwords, personal IDs, or any sensitive/confidential information. Only attach non-confidential screenshots. Files will be stored externally.</div>
 
-    <form action="https://monsta-pipeline-issues.vercel.app/api/report" method="post" enctype="multipart/form-data">
+    <form action="/api/report" method="post" enctype="multipart/form-data">
       <label>Name<span class="req">*</span> : <input type="text" name="name" required></label>
       <label>In-house/Outsource<span class="req">*</span> :
         <select name="employment" required>
