@@ -7,6 +7,9 @@ const reportHandler = require('./api/report');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust Coolify's reverse proxy for correct IP detection (rate limiting)
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet({
     contentSecurityPolicy: {
