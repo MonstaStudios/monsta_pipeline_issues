@@ -19,6 +19,7 @@ app.use(helmet({
             frameSrc: ["www.google.com"],
             styleSrc: ["'self'", "'unsafe-inline'"],
             imgSrc: ["'self'", "data:"],
+            connectSrc: ["'self'", "https://www.google.com", "https://www.gstatic.com"],
         }
     }
 }));
