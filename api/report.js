@@ -154,6 +154,11 @@ module.exports = async (req, res) => {
             ? fields.tool_custom
             : fields.tool;
 
+        // Department value (custom if "OTHERS" selected)
+        const deptVal = (fields.department === "Other" && fields.department_custom)
+            ? fields.department_custom
+            : fields.department;
+
         // Upload each image, assemble markdown (wrapped in collapsible section)
         let imagesMarkdown = "";
         if (files.length > 0) {
@@ -175,7 +180,7 @@ module.exports = async (req, res) => {
 **Name:** ${fields.name}
 **In-house/Outsource:** ${fields.employment}
 **PC Number:** ${fields.pc_number}
-**Department:** ${fields.department}
+**Department:** ${deptVal}
 **Tool:** ${toolVal}
 ${fields.subtool ? `**Sub-tool:** ${fields.subtool}` : ""}
 ${fields.contact ? `**Contact:** ${fields.contact}\n` : ""}
@@ -189,7 +194,7 @@ _Submitted via external form_
         const labels = [
             fields.type ? fields.type.toLowerCase() : "",
             toolVal || "",
-            fields.department || "",
+            deptVal || "",
             "external-report"
         ].filter(Boolean);
 

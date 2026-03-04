@@ -202,6 +202,19 @@
     }
   </style>
   <script>
+    // Show/hide custom department input
+    function handleDepartmentChange(e) {
+      var sel = e.target;
+      var customDeptInput = document.getElementById('custom-department');
+      if (sel.value === 'Other') {
+        customDeptInput.classList.remove('hidden');
+        customDeptInput.querySelector('input').required = true;
+      } else {
+        customDeptInput.classList.add('hidden');
+        customDeptInput.querySelector('input').required = false;
+      }
+    }
+
     // Show/hide custom tool input
     function handleToolChange(e) {
       var sel = e.target;
@@ -260,6 +273,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('department-select').addEventListener('change', handleDepartmentChange);
       document.getElementById('tool-select').addEventListener('change', handleToolChange);
       updateFileList();
 
@@ -295,7 +309,7 @@
       </label>
       <label>PC Number : <input type="text" name="pc_number"></label>
       <label>Department<span class="req">*</span> :
-        <select name="department" required>
+        <select name="department" id="department-select" required>
           <option value="">--Choose--</option>
           <option>LAYOUT</option>
           <option>ASSET</option>
@@ -303,8 +317,12 @@
           <option>RENDERING / LIGHTING</option>
           <option>FX</option>
           <option>COMPOSITING</option>
+          <option value="Other">OTHERS...</option>
         </select>
       </label>
+      <div id="custom-department" class="hidden">
+        <label>Specify Department : <input type="text" name="department_custom" placeholder="Please enter your department"></label>
+      </div>
       <label>Tool<span class="req">*</span> :
         <select name="tool" id="tool-select" required>
           <option value="">--Choose--</option>
