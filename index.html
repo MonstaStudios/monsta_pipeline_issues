@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <title>External Issue Submission - Monsta Pipeline</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://www.google.com/recaptcha/api.js?render=6Le5-X4sAAAAAPUtA7Vi636J9JJUQjpGceMjh3Qz" async defer></script>
   <style>
     body {
       background: #1a1a2e;
@@ -261,6 +262,17 @@
     window.addEventListener('DOMContentLoaded', function () {
       document.getElementById('tool-select').addEventListener('change', handleToolChange);
       updateFileList();
+
+      var form = document.querySelector('form');
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        grecaptcha.ready(function () {
+          grecaptcha.execute('6Le5-X4sAAAAAPUtA7Vi636J9JJUQjpGceMjh3Qz', { action: 'submit' }).then(function (token) {
+            document.getElementById('g-recaptcha-response').value = token;
+            form.submit();
+          });
+        });
+      });
     });
   </script>
 </head>
@@ -327,9 +339,11 @@
         <div class="file-list" id="file-list"></div>
       </div>
 
+      <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response" value="">
+
       <button type="submit">Submit</button>
     </form>
-    <div class="footer">Powered by GitHub Pages &mdash; Monsta Studios</div>
+    <div class="footer">Powered by Coolify &mdash; Monsta Studios</div>
   </main>
 </body>
 

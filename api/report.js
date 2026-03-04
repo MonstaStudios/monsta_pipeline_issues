@@ -34,14 +34,30 @@ function guessContentType(filename) {
 // Parse form fields/files using Busboy
 function getFormFields(req) {
     return new Promise((resolve, reject) => {
-        const busboy = Busboy({ headers: req.headers });
+        const busboy = Busboy({
+            headers: req.headers,
+            limits: {
+                fileSize: 10 * 1024 * 1024, // 10MB per file
+                files: 5,                    // max 5 files
+                fields: 20                   // max 20 fields
+            }
+        });
         const fields = {};
         const files = [];
+        let fileSizeLimitHit = false;
         busboy.on('field', (key, value) => { fields[key] = value; });
         busboy.on('file', (key, file, info) => {
             // Busboy v1.x+ provides filename, encoding, mimeType in an info object
             const { filename, encoding, mimeType } = info;
             console.log(`Received file: field="${key}", filename="${filename}", mimeType="${mimeType}"`);
+
+            // Reject non-image MIME types
+            const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedMimeTypes.includes(mimeType)) {
+                console.log(`Rejected file: unsupported MIME type "${mimeType}"`);
+                file.resume(); // drain and discard
+                return;
+            }
 
             let name = 'upload.bin';
             if (filename && typeof filename === 'string' && filename.length > 0) {
@@ -49,7 +65,12 @@ function getFormFields(req) {
             }
             let buf = [];
             file.on('data', (data) => buf.push(data));
+            file.on('limit', () => {
+                fileSizeLimitHit = true;
+                console.log(`File size limit hit for: ${name}`);
+            });
             file.on('end', () => {
+                if (fileSizeLimitHit) return; // discard truncated file
                 console.log(`File buffered: ${name}, size: ${Buffer.concat(buf).length} bytes`);
                 files.push({
                     field: key,
@@ -59,7 +80,12 @@ function getFormFields(req) {
                 });
             });
         });
-        busboy.on('finish', () => resolve({ fields, files }));
+        busboy.on('finish', () => {
+            if (fileSizeLimitHit) {
+                return reject(new Error('One or more files exceed the 10MB size limit.'));
+            }
+            resolve({ fields, files });
+        });
         busboy.on('error', reject);
         req.pipe(busboy);
     });
@@ -90,11 +116,6 @@ async function uploadFileToS3(file, filename, mimeType) {
 }
 
 module.exports = async (req, res) => {
-    // Optional: allow CORS if submitting from GitHub Pages
-    // res.setHeader("Access-Control-Allow-Origin", "https://monstastudios.github.io");
-    // res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    // if (req.method === "OPTIONS") { res.status(200).end(); return; }
-
     if (req.method !== "POST") {
         res.status(405).send("Method not allowed");
         return;
@@ -103,7 +124,29 @@ module.exports = async (req, res) => {
     try {
         const { fields, files } = await getFormFields(req);
 
-        console.log(`Form parsed - Fields: ${Object.keys(fields).length}, Files: ${files.length}`);
+        // Verify Google reCAPTCHA v3
+        const recaptchaToken = fields['g-recaptcha-response'];
+        if (!recaptchaToken) {
+            res.status(400).json({ success: false, error: 'Captcha required.' });
+            return;
+        }
+        const recaptchaRes = await axios.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            new URLSearchParams({
+                secret: process.env.RECAPTCHA_SECRET_KEY,
+                response: recaptchaToken
+            }),
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+        );
+        if (!recaptchaRes.data.success) {
+            res.status(403).json({ success: false, error: 'Captcha verification failed. Please try again.' });
+            return;
+        }
+        if (recaptchaRes.data.score < 0.5) {
+            console.warn(`reCAPTCHA score too low: ${recaptchaRes.data.score}`);
+            res.status(403).json({ success: false, error: 'Submission flagged as suspicious. Please try again.' });
+            return;
+        }
         files.forEach((f, i) => console.log(`  File ${i + 1}: ${f.filename} (${f.mimeType})`));
 
         // Tool value (custom if "Other" selected)
