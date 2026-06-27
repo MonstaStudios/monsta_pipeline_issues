@@ -12,15 +12,24 @@ app.set('trust proxy', 1);
 
 // Security headers
 app.use(helmet({
+    hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+    },
     contentSecurityPolicy: {
         directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "www.google.com", "www.gstatic.com"],
-            frameSrc: ["www.google.com"],
-            styleSrc: ["'self'", "'unsafe-inline'"],
-            imgSrc: ["'self'", "data:"],
-            connectSrc: ["'self'", "https://www.google.com", "https://www.gstatic.com"],
-            upgradeInsecureRequests: null,
+            defaultSrc:     ["'self'"],
+            scriptSrc:      ["'self'", "www.google.com", "www.gstatic.com"],
+            scriptSrcAttr:  ["'none'"],
+            frameSrc:       ["www.google.com"],
+            styleSrc:       ["'self'", "'unsafe-inline'"],
+            imgSrc:         ["'self'", "data:"],
+            connectSrc:     ["'self'", "https://www.google.com", "https://www.gstatic.com"],
+            objectSrc:      ["'none'"],
+            baseUri:        ["'self'"],
+            formAction:     ["'self'"],
+            frameAncestors: ["'none'"],
         }
     }
 }));
@@ -33,6 +42,9 @@ const submitLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 });
+
+// Serve static assets (form.js, etc.)
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve the form
 app.get('/', (req, res) => {
