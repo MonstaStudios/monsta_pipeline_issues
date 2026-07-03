@@ -30,7 +30,7 @@ Use the native issue form and choose the appropriate template:
 
 ### If you do not have a GitHub account
 
-Use the external form: **[issue-form.monsta.my](https://issues-form.monsta.my/)**
+Use the external form: **[issues form](https://issues-form.monsta.my/)**
 
 Your submission will be posted automatically by the issue bot. Include your contact info if you want a follow-up.
 
